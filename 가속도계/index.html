@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>센서 데이터 분석 보고서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content-wrapper {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        /* 목차 스타일 */
+        .nav-item {
+            border-bottom: 1px solid #e8eaf6;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:last-child {
+            border-bottom: none;
+        }
+        
+        .nav-header {
+            padding: 20px 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        .nav-header:hover {
+            background: #f8f9ff;
+            color: #667eea;
+        }
+        
+        .nav-header.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }
+        
+        .nav-header.active .arrow {
+            transform: rotate(90deg);
+        }
+        
+        /* 하위 항목 스타일 */
+        .sub-items {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            background: #f8f9ff;
+        }
+        
+        .sub-items.show {
+            max-height: 2000px;
+        }
+        
+        .sub-item {
+            padding: 15px 50px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sub-item:hover {
+            background: #e8eaf6;
+            border-left-color: #667eea;
+            padding-left: 55px;
+        }
+        
+        .sub-item.active {
+            background: #e8eaf6;
+            border-left-color: #764ba2;
+            font-weight: 600;
+        }
+        
+        /* 요약 내용 스타일 */
+        .summary-content {
+            padding: 20px 30px;
+            background: #fafbff;
+            border-left: 4px solid #667eea;
+            margin: 0;
+            display: none;
+        }
+        
+        .summary-content.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .summary-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .summary-card .content {
+            flex: 1;
+        }
+        
+        .summary-card .image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 5px;
+        }
+        
+        /* 상세 내용 스타일 */
+        .detail-content {
+            padding: 30px;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .detail-content.show {
+            display: block;
+        }
+        
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .detail-section {
+            margin-bottom: 30px;
+        }
+        
+        .detail-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8eaf6;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: color 0.3s ease;
+        }
+        
+        .detail-section h3:hover {
+            color: #667eea;
+        }
+        
+        .detail-section h3 .arrow {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+        
+        .detail-section h3.active .arrow {
+            transform: rotate(90deg);
+        }
+        
+        .detail-content-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .detail-content-wrapper.show {
+            max-height: 2000px;
+        }
+        
+        .pdf-viewer {
+            width: 100%;
+            height: 800px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .spec-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .spec-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e8eaf6;
+        }
+        
+        .spec-table tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .chart-container {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .back-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: #764ba2;
+        }
+        
+        .pdf-button {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .pdf-button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .nav-header, .sub-item {
+                padding: 15px 20px;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 가격 비교 스타일 */
+        .price-comparison {
+            margin-top: 20px;
+        }
+        
+        .price-table-container {
+            margin-bottom: 40px;
+        }
+        
+        .price-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .price-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .price-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e8eaf6;
+        }
+        
+        .price-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .price-table tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .price {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        /* 차트 스타일 */
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-container h4 {
+            margin-bottom: 25px;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+        
+        .bar-chart {
+            margin-bottom: 30px;
+        }
+        
+        .chart-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .model-label {
+            width: 80px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        
+        .bar-wrapper {
+            flex: 1;
+            background: #f0f2f5;
+            border-radius: 5px;
+            height: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bar {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+        
+        .bar-1axis {
+            background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+        }
+        
+        .bar-3axis {
+            background: linear-gradient(135deg, #764ba2 0%, #6b4999 100%);
+        }
+        
+        .bar-value {
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>센서 데이터 분석 보고서</h1>
+            <p class="subtitle">가속도계 센서 상세 분석</p>
+        </header>
+        
+        <div class="content-wrapper">
+            <!-- 메인 네비게이션 -->
+            <nav id="mainNav">
+                <!-- 1축 섹션 -->
+                <div class="nav-item">
+                    <div class="nav-header" onclick="toggleSection('section1')">
+                        <span>1. 1축 가속도계</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items" id="section1">
+                        <div class="sub-item" onclick="showDetail('320C15')">
+                            <span>1.1 320C15</span>
+                            <span>▶</span>
+                        </div>
+                        <div class="sub-item" onclick="showDetail('352A24')">
+                            <span>1.2 352A24</span>
+                            <span>▶</span>
+                        </div>
+                    </div>
+                    <div class="summary-content" id="section1-summary">
+                        <h3>1축 가속도계 요약</h3>
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>320C15</h4>
+                                    <p>• ESS mini (2 gm), quartz shear ICP®</p>
+                                    <p>• 감도: (±10%)10 mV/g</p>
+                                    <p>• 측정 범위: ±500 g pk</p>
+                                    <p>• 주파수: (±5%)1.0 to 10000 Hz</p>
+                                    <p>• 무게: 0.07 oz (2.0 gm)</p>
+                                </div>
+                                <img src="./jpg/320c15.jpg" alt="320C15 센서" class="image">
+                            </div>
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>352A24</h4>
+                                    <p>• Miniature, lightweight ceramic shear ICP®</p>
+                                    <p>• 감도: (±10%)100 mV/g</p>
+                                    <p>• 측정 범위: ±50 g pk</p>
+                                    <p>• 주파수: (±5%)1.0 to 8000 Hz</p>
+                                    <p>• 무게: 0.03 oz (0.8 gm)</p>
+                                </div>
+                                <img src="./jpg/352a24.jpg" alt="352A24 센서" class="image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 3축 섹션 -->
+                <div class="nav-item">
+                    <div class="nav-header" onclick="toggleSection('section2')">
+                        <span>2. 3축 가속도계</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="sub-items" id="section2">
+                        <div class="sub-item" onclick="showDetail('356A01')">
+                            <span>2.1 356A01</span>
+                            <span>▶</span>
+                        </div>
+                        <div class="sub-item" onclick="showDetail('356A03')">
+                            <span>2.2 356A03</span>
+                            <span>▶</span>
+                        </div>
+                        <div class="sub-item" onclick="showDetail('356A09')">
+                            <span>2.3 356A09</span>
+                            <span>▶</span>
+                        </div>
+                        <div class="sub-item" onclick="showDetail('356A45')">
+                            <span>2.4 356A45</span>
+                            <span>▶</span>
+                        </div>
+                    </div>
+                    <div class="summary-content" id="section2-summary">
+                        <h3>3축 가속도계 요약</h3>
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>356A01</h4>
+                                    <p>• Triaxial, miniature, ceramic shear ICP®</p>
+                                    <p>• 감도: (±20%)5 mV/g</p>
+                                    <p>• 측정 범위: ±1000 g pk</p>
+                                    <p>• 크기: 0.25" cube</p>
+                                    <p>• 커넥터: Integral Cable</p>
+                                </div>
+                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">
+                            </div>
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>356A03</h4>
+                                    <p>• Triaxial, miniature, ceramic shear ICP®</p>
+                                    <p>• 감도: (±20%)10 mV/g</p>
+                                    <p>• 측정 범위: ±500 g pk</p>
+                                    <p>• 크기: 0.25" cube</p>
+                                    <p>• 커넥터: Integral Cable</p>
+                                </div>
+                                <img src="./jpg/356a03a.jpg" alt="356A03 센서" class="image">
+                            </div>
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>356A09</h4>
+                                    <p>• Triaxial, miniature, ceramic shear ICP®</p>
+                                    <p>• 감도: (±20%)10 mV/g</p>
+                                    <p>• 측정 범위: ±500 g pk</p>
+                                    <p>• 무게: 1.0 gm</p>
+                                    <p>• 커넥터: 8-36 4-Pin</p>
+                                </div>
+                                <img src="./jpg/356a09.jpg" alt="356A09 센서" class="image">
+                            </div>
+                            <div class="summary-card">
+                                <div class="content">
+                                    <h4>356A45</h4>
+                                    <p>• Triaxial ICP®, TEDS 1.0</p>
+                                    <p>• 감도: (±10%)100 mV/g</p>
+                                    <p>• 측정 범위: ±50 g pk</p>
+                                    <p>• 주파수: (+/-10%)0.4 to 10000 Hz</p>
+                                    <p>• 커넥터: 1/4-28 4-Pin</p>
+                                </div>
+                                <img src="./jpg/356a45_new.jpg" alt="356A45 센서" class="image">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 가격 비교 섹션 -->
+                <div class="nav-item">
+                    <div class="nav-header" onclick="toggleSection('section3')">
+                        <span>3. 가격 비교</span>
+                        <span class="arrow">▶</span>
+                    </div>
+                    <div class="summary-content" id="section3-summary">
+                        <h3>센서 가격 비교</h3>
+                        <div class="price-comparison">
+                            <div class="price-table-container">
+                                <table class="price-table">
+                                    <thead>
+                                        <tr>
+                                            <th>모델명</th>
+                                            <th>타입</th>
+                                            <th>가격 (원)</th>
+                                            <th>측정 범위</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>320C15</td>
+                                            <td>1축</td>
+                                            <td class="price">₩3,381,400</td>
+                                            <td>±500 g pk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>352A24</td>
+                                            <td>1축</td>
+                                            <td class="price">₩3,248,300</td>
+                                            <td>±50 g pk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>356A01</td>
+                                            <td>3축</td>
+                                            <td class="price">₩6,996,000</td>
+                                            <td>±1000 g pk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>356A03</td>
+                                            <td>3축</td>
+                                            <td class="price">₩7,080,700</td>
+                                            <td>±500 g pk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>356A09</td>
+                                            <td>3축</td>
+                                            <td class="price">₩6,985,500</td>
+                                            <td>±500 g pk</td>
+                                        </tr>
+                                        <tr>
+                                            <td>356A45</td>
+                                            <td>3축</td>
+                                            <td class="price">₩6,667,100</td>
+                                            <td>±50 g pk</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="chart-container">
+                                <h4>가격 시각화</h4>
+                                <div class="bar-chart">
+                                    <div class="chart-row">
+                                        <span class="model-label">320C15</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-1axis" style="width: 100%;">
+                                                <span class="bar-value">₩3,381,400</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-row">
+                                        <span class="model-label">352A24</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-1axis" style="width: 100%;">
+                                                <span class="bar-value">₩3,248,300</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-row">
+                                        <span class="model-label">356A01</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-3axis" style="width: 100%;">
+                                                <span class="bar-value">₩6,996,000</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-row">
+                                        <span class="model-label">356A03</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-3axis" style="width: 100%;">
+                                                <span class="bar-value">₩7,080,700</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-row">
+                                        <span class="model-label">356A09</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-3axis" style="width: 100%;">
+                                                <span class="bar-value">₩6,985,000</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chart-row">
+                                        <span class="model-label">356A45</span>
+                                        <div class="bar-wrapper">
+                                            <div class="bar bar-3axis" style="width: 100%;">
+                                                <span class="bar-value">₩6,667,100</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="chart-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #667eea;"></span>
+                                        <span>1축 가속도계</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background: #764ba2;"></span>
+                                        <span>3축 가속도계</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- 상세 내용 영역 -->
+            <div id="detailView" class="detail-content">
+                <!-- 동적으로 내용이 삽입됩니다 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 섹션 토글 함수
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const summary = document.getElementById(sectionId + '-summary');
+            const header = section ? section.previousElementSibling : document.querySelector(`[onclick="toggleSection('${sectionId}')"]`);
+            
+            // 다른 섹션 닫기
+            document.querySelectorAll('.sub-items').forEach(item => {
+                if (item.id !== sectionId) {
+                    item.classList.remove('show');
+                    if (item.previousElementSibling) {
+                        item.previousElementSibling.classList.remove('active');
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.summary-content').forEach(item => {
+                if (item.id !== sectionId + '-summary') {
+                    item.classList.remove('show');
+                }
+            });
+            
+            // 현재 섹션 토글
+            if (section) {
+                section.classList.toggle('show');
+            }
+            summary.classList.toggle('show');
+            header.classList.toggle('active');
+            
+            // 상세 뷰 숨기기
+            document.getElementById('detailView').classList.remove('show');
+            
+            // 가격 비교 섹션인 경우 차트 애니메이션
+            if (sectionId === 'section3' && summary.classList.contains('show')) {
+                animateBars();
+            }
+        }
+        
+        // 차트 애니메이션 함수
+        function animateBars() {
+            const bars = document.querySelectorAll('.bar');
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = '100%';
+                    }, 100);
+                }, index * 100);
+            });
+        }
+        
+        // 상세 내용 표시 함수
+        function showDetail(modelId) {
+            const detailView = document.getElementById('detailView');
+            const mainNav = document.getElementById('mainNav');
+            
+            // 파일명 매핑
+            const fileMapping = {
+                '320C15': '320c15',
+                '352A24': '1352a24',  // pdf 폴더에 있는 실제 파일명
+                '356A01': '356a01',
+                '356A03': '356a03',
+                '356A09': '356a09',
+                '356A45': '356a45'
+            };
+            
+            // 상세 내용 데이터 (실제로는 데이터베이스나 API에서 가져옴)
+            const detailData = {
+                '320C15': {
+                    title: '320C15 - 단축 고감도 가속도계',
+                    specs: {
+                        '측정 범위': '±50 g pk',
+                        '주파수 응답': '0.5 to 10,000 Hz',
+                        '감도': '100 mV/g',
+                        '온도 범위': '-65 to +250 °F',
+                        '무게': '5.8 gm',
+                        '하우징 재질': '티타늄'
+                    },
+                    description: '320C15는 고감도 단축 가속도계로, 낮은 진폭의 진동 측정에 최적화되어 있습니다. 티타늄 하우징으로 제작되어 가볍고 내구성이 뛰어납니다.',
+                    applications: ['모달 분석', '진동 테스트', '품질 관리', '기계 상태 모니터링']
+                },
+                '352A24': {
+                    title: '352A24 - 고충격 단축 가속도계',
+                    specs: {
+                        '측정 범위': '±500 g pk',
+                        '주파수 응답': '1 to 10,000 Hz',
+                        '감도': '10 mV/g',
+                        '온도 범위': '-65 to +250 °F',
+                        '무게': '10.5 gm',
+                        '하우징 재질': '스테인리스 스틸'
+                    },
+                    description: '352A24는 고충격 환경에서 사용하기 위해 설계된 견고한 단축 가속도계입니다. 충돌 테스트 및 폭발 테스트에 이상적입니다.',
+                    applications: ['충돌 테스트', '폭발 테스트', '낙하 테스트', '고충격 환경 측정']
+                },
+                '356A01': {
+                    title: '356A01 - 소형 3축 가속도계',
+                    specs: {
+                        '측정 범위': '±50 g pk',
+                        '주파수 응답': '1 to 5,000 Hz',
+                        '감도': '100 mV/g',
+                        '크기': '10.2 x 10.2 x 10.2 mm',
+                        '무게': '4 gm',
+                        '커넥터': '4-pin'
+                    },
+                    description: '356A01은 초소형 큐브 형태의 3축 가속도계로, 공간이 제한된 응용 분야에 이상적입니다.',
+                    applications: ['소형 제품 테스트', '휴대용 장치 진동 측정', '드론 진동 분석', 'PCB 진동 테스트']
+                },
+                '356A03': {
+                    title: '356A03 - 방수형 3축 가속도계',
+                    specs: {
+                        '측정 범위': '±100 g pk',
+                        '주파수 응답': '0.5 to 6,000 Hz',
+                        '감도': '50 mV/g',
+                        '방수 등급': 'IP67',
+                        '온도 범위': '-40 to +185 °F',
+                        '케이블': '통합형 방수 케이블'
+                    },
+                    description: '356A03은 IP67 등급의 방수 기능을 갖춘 3축 가속도계로, 습하거나 물이 있는 환경에서도 안정적으로 작동합니다.',
+                    applications: ['해양 장비 테스트', '실외 환경 측정', '자동차 엔진룸', '습도가 높은 환경']
+                },
+                '356A09': {
+                    title: '356A09 - 고온용 3축 가속도계',
+                    specs: {
+                        '측정 범위': '±250 g pk',
+                        '주파수 응답': '2 to 8,000 Hz',
+                        '감도': '20 mV/g',
+                        '온도 범위': '-65 to +500 °F',
+                        '하우징': '인코넬 합금',
+                        '절연': '고온 세라믹'
+                    },
+                    description: '356A09는 극한의 고온 환경에서 작동하도록 설계된 특수 3축 가속도계입니다.',
+                    applications: ['터빈 테스트', '엔진 고온부 측정', '용접 장비 모니터링', '열처리 공정']
+                },
+                '356A45': {
+                    title: '356A45 - DC 응답 3축 가속도계',
+                    specs: {
+                        '측정 범위': '±500 g pk',
+                        '주파수 응답': 'DC to 7,000 Hz',
+                        '감도': '10 mV/g',
+                        'DC 오프셋': '<±50 mV',
+                        '선형성': '≤1% FS',
+                        '전원': '20 to 30 VDC'
+                    },
+                    description: '356A45는 DC 응답이 가능한 3축 가속도계로, 정적 가속도와 동적 가속도를 모두 측정할 수 있습니다.',
+                    applications: ['차량 충돌 테스트', '우주항공 테스트', '중력 측정', '경사 모니터링']
+                }
+            };
+            
+            const data = detailData[modelId];
+            const fileName = fileMapping[modelId];
+            
+            // 상세 내용 HTML 생성
+            let detailHTML = `
+                <button class="back-button" onclick="backToList()">← 목록으로</button>
+                <div class="detail-header">
+                    <h2>${data.title}</h2>
+                    <p>${data.description}</p>
+                </div>
+                
+                <div class="detail-section">
+                    <h3 onclick="toggleDetailSection('specs-${modelId}')">
+                        주요 사양
+                        <span class="arrow">▶</span>
+                    </h3>
+                    <div class="detail-content-wrapper show" id="specs-${modelId}">
+                        <iframe src="./pdf/${fileName}.pdf" class="pdf-viewer"></iframe>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3 onclick="toggleDetailSection('drawing-${modelId}')">
+                        도면
+                        <span class="arrow">▶</span>
+                    </h3>
+                    <div class="detail-content-wrapper show" id="drawing-${modelId}">
+                        <iframe src="./dwg/${fileName}.pdf" class="pdf-viewer"></iframe>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3 onclick="toggleDetailSection('connection-${modelId}')">
+                        연결 상태
+                        <span class="arrow">▶</span>
+                    </h3>
+                    <div class="detail-content-wrapper" id="connection-${modelId}">
+                        <iframe src="./con/${fileName}.pdf" class="pdf-viewer"></iframe>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3 onclick="toggleDetailSection('quote-${modelId}')">
+                        견적서
+                        <span class="arrow">▶</span>
+                    </h3>
+                    <div class="detail-content-wrapper" id="quote-${modelId}">
+                        <iframe src="./quo/${fileName}.pdf" class="pdf-viewer"></iframe>
+                    </div>
+                </div>
+            `;
+            
+            // 상세 내용 표시
+            detailView.innerHTML = detailHTML;
+            detailView.classList.add('show');
+            mainNav.style.display = 'none';
+        }
+        
+        // 목록으로 돌아가기
+        function backToList() {
+            document.getElementById('detailView').classList.remove('show');
+            document.getElementById('mainNav').style.display = 'block';
+        }
+        
+        // 상세 섹션 토글 함수
+        function toggleDetailSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const header = section.previousElementSibling;
+            
+            section.classList.toggle('show');
+            header.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
