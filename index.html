@@ -147,6 +147,7 @@
             margin-top: 15px;
         }
         
+        /* ===== 여기서부터 제가 수정한 부분입니다 ===== */
         .summary-card {
             background: white;
             padding: 20px;
@@ -154,9 +155,18 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
+            flex-direction: column;  /* 추가: 기본을 세로 방향으로 */
+            gap: 15px;
+        }
+
+        .summary-card.image-top {    /* 새로 추가: 이미지가 위에 있는 레이아웃 */
+            flex-direction: column;
+        }
+
+        .summary-card.image-right {  /* 새로 추가: 이미지가 오른쪽에 있는 레이아웃 */
+            flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
         }
         
         .summary-card:hover {
@@ -499,7 +509,7 @@
                     <div class="summary-content" id="section1-summary">
                         <h3>1축 가속도계 요약</h3>
                         <div class="summary-grid">
-                            <div class="summary-card">
+                            <div class="summary-card image-right">
                                 <div class="content">
                                     <h4>320C15</h4>
                                     <p>• ESS mini (2 gm), quartz shear ICP®</p>
@@ -510,7 +520,7 @@
                                 </div>
                                 <img src="./jpg/320c15.jpg" alt="320C15 센서" class="image">
                             </div>
-                            <div class="summary-card">
+                            <div class="summary-card image-right">
                                 <div class="content">
                                     <h4>352A24</h4>
                                     <p>• Miniature, lightweight ceramic shear ICP®</p>
@@ -552,7 +562,8 @@
                     <div class="summary-content" id="section2-summary">
                         <h3>3축 가속도계 요약</h3>
                         <div class="summary-grid">
-                            <div class="summary-card">
+                            <div class="summary-card image-top">
+                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">  <!-- 이미지를 위로 이동 -->
                                 <div class="content">
                                     <h4>356A01</h4>
                                     <p>• Triaxial, miniature, ceramic shear ICP®</p>
@@ -561,9 +572,10 @@
                                     <p>• 크기: 0.25" cube</p>
                                     <p>• 커넥터: Integral Cable</p>
                                 </div>
-                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">
+                                
                             </div>
-                            <div class="summary-card">
+                            <div class="summary-card image-top">
+                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">  <!-- 이미지를 위로 이동 -->
                                 <div class="content">
                                     <h4>356A03</h4>
                                     <p>• Triaxial, miniature, ceramic shear ICP®</p>
@@ -572,9 +584,10 @@
                                     <p>• 크기: 0.25" cube</p>
                                     <p>• 커넥터: Integral Cable</p>
                                 </div>
-                                <img src="./jpg/356a03a.jpg" alt="356A03 센서" class="image">
+                                
                             </div>
-                            <div class="summary-card">
+                            <div class="summary-card image-top">
+                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">  <!-- 이미지를 위로 이동 -->
                                 <div class="content">
                                     <h4>356A09</h4>
                                     <p>• Triaxial, miniature, ceramic shear ICP®</p>
@@ -583,9 +596,10 @@
                                     <p>• 무게: 1.0 gm</p>
                                     <p>• 커넥터: 8-36 4-Pin</p>
                                 </div>
-                                <img src="./jpg/356a09.jpg" alt="356A09 센서" class="image">
+                                
                             </div>
-                            <div class="summary-card">
+                            <div class="summary-card image-top">
+                                <img src="./jpg/356a01.jpg" alt="356A01 센서" class="image">  <!-- 이미지를 위로 이동 -->
                                 <div class="content">
                                     <h4>356A45</h4>
                                     <p>• Triaxial ICP®, TEDS 1.0</p>
@@ -594,7 +608,7 @@
                                     <p>• 주파수: (+/-10%)0.4 to 10000 Hz</p>
                                     <p>• 커넥터: 1/4-28 4-Pin</p>
                                 </div>
-                                <img src="./jpg/356a45_new.jpg" alt="356A45 센서" class="image">
+                                
                             </div>
                         </div>
                     </div>
